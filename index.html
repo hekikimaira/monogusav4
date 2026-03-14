@@ -73,15 +73,18 @@ textarea{resize:vertical}
 .nb-card-body{white-space:pre-wrap;word-break:break-all;font-size:13px;line-height:1.6;padding-left:4px}
 .nb-card-date{font-size:11px;color:var(--text2)}
 .nb-empty{text-align:center;color:var(--text2);padding:40px 20px;font-size:13px}
-.kb-line{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px}
-.kb-line:last-child{border-bottom:none}
-.kb-amount{font-weight:700;font-size:14px;min-width:80px;text-align:right}
-.kb-amount.plus{color:var(--success)}
-.kb-amount.minus{color:var(--danger)}
-.kb-comment{color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.kb-summary{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--radius);text-align:center}
-.kb-summary-row{display:flex;justify-content:center;gap:16px;font-size:13px;margin-bottom:4px}
-.kb-summary-total{font-size:18px;font-weight:700;margin-top:4px}
+.kb-summary{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--radius);text-align:center;cursor:pointer}
+.kb-summary:active{opacity:.7}
+.kb-summary-total{font-size:18px;font-weight:700}
+.kb-summary-hint{font-size:10px;color:var(--text2);margin-top:2px}
+.kb-detail{display:none;padding:6px 0;font-size:13px}
+.kb-detail.open{display:block}
+.kb-detail-line{display:flex;justify-content:space-between;padding:3px 4px;border-bottom:1px solid var(--border)}
+.kb-detail-line:last-child{border-bottom:none}
+.kb-detail-amount{font-weight:600;min-width:90px;text-align:right}
+.kb-detail-amount.plus{color:var(--success)}
+.kb-detail-amount.minus{color:var(--danger)}
+.kb-detail-comment{color:var(--text2);flex:1;min-width:0}
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -328,6 +331,7 @@ function findOrCreateCat(cats,name){
 }
 
 function nbRenderList(){
+  _kbId=0;
   const cats=nbParse();
   const parsedEl=document.getElementById('nb-parsed');
 
@@ -392,9 +396,9 @@ function parseKakeiboLine(line){
   return{amount,comment};
 }
 
+let _kbId=0;
 function renderKakeibo(lines){
   if(!lines.length)return '';
-  let html='';
   let income=0,expense=0;
   const items=[];
   for(const line of lines){
@@ -402,18 +406,20 @@ function renderKakeibo(lines){
     if(parsed){
       items.push(parsed);
       if(parsed.amount>0)income+=parsed.amount;else expense+=Math.abs(parsed.amount);
-    }else{
-      // 普通の行はそのまま表示
-      html+=`<div style="font-size:13px;padding:2px 0;color:var(--text2)">${es(line)}</div>`;
     }
   }
+  const total=income-expense;
+  const id='kb'+(_kbId++);
+  let html=`<div class="kb-summary" onclick="document.getElementById('${id}').classList.toggle('open')"><div class="kb-summary-total" style="color:${total>=0?'var(--success)':'var(--danger)'}">合計 ${total>=0?'+':''}${total.toLocaleString()}円</div><div class="kb-summary-hint">タップで詳細</div></div>`;
+  html+=`<div class="kb-detail" id="${id}">`;
   for(const it of items){
     const cls=it.amount>=0?'plus':'minus';
     const prefix=it.amount>=0?'+':'';
-    html+=`<div class="kb-line"><span class="kb-amount ${cls}">${prefix}${it.amount.toLocaleString()}円</span><span class="kb-comment">${es(it.comment)}</span></div>`;
+    html+=`<div class="kb-detail-line"><span class="kb-detail-comment">${es(it.comment||'')}</span><span class="kb-detail-amount ${cls}">${prefix}${it.amount.toLocaleString()}円</span></div>`;
   }
-  const total=income-expense;
-  html+=`<div class="kb-summary"><div class="kb-summary-row"><span style="color:var(--success)">収入 +${income.toLocaleString()}円</span><span style="color:var(--danger)">支出 -${expense.toLocaleString()}円</span></div><div class="kb-summary-total" style="color:${total>=0?'var(--success)':'var(--danger)'}">合計 ${total>=0?'+':''}${total.toLocaleString()}円</div></div>`;
+  html+=`<div class="kb-detail-line" style="border-top:2px solid var(--text);margin-top:4px;padding-top:4px"><span style="font-weight:600">収入</span><span class="kb-detail-amount plus">+${income.toLocaleString()}円</span></div>`;
+  html+=`<div class="kb-detail-line"><span style="font-weight:600">支出</span><span class="kb-detail-amount minus">-${expense.toLocaleString()}円</span></div>`;
+  html+=`</div>`;
   return html;
 }
 

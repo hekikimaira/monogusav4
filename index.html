@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ものぐさ手帳 v2</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0a">
+<link rel="manifest" href="manifest.json">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0a;--surface:#151515;--surface2:#1e1e1e;--surface3:#282828;
+  --text:#d4d4d4;--text2:#888;--accent:#c8a44e;--accent2:#a0833a;
+  --red:#c05050;--green:#50a060;--blue:#5080b0;--purple:#8868a8;
+  --border:#2a2a2a;--radius:6px;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:'Helvetica Neue',sans-serif;font-size:14px;line-height:1.6;
+  -webkit-tap-highlight-color:transparent}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;
+  background:none;color:var(--text);-webkit-appearance:none}
+input,textarea,select{font-family:inherit;font-size:inherit;color:var(--text);
+  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:8px 10px;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:80px}
+
+/* Layout */
+#app{display:flex;flex-direction:column;height:100dvh;max-width:600px;margin:0 auto}
+header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0}
+header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent)}
+#yearSelect{width:80px;padding:4px 6px;font-size:13px;text-align:center;background:var(--surface)}
+#authBtn{font-size:12px;padding:4px 10px;border-radius:var(--radius);
+  background:var(--surface2);border:1px solid var(--border)}
+#authBtn:active{background:var(--surface3)}
+
+/* View Tabs */
+#viewTabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
+.vtab{flex:1;padding:10px 6px;font-size:12px;font-weight:500;text-align:center;
+  color:var(--text2);border-bottom:2px solid transparent;transition:all 0.2s;min-width:0;white-space:nowrap}
+.vtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.vtab:active{background:var(--surface)}
+
+/* Content Area */
+#content{flex:1;overflow-y:auto;padding:10px 14px;-webkit-overflow-scrolling:touch}
+.entry{background:var(--surface);border-radius:var(--radius);padding:10px 12px;
+  margin-bottom:8px;border-left:3px solid var(--border)}
+.entry.m-kakeibo{border-left-color:var(--green)}
+.entry.m-memo{border-left-color:var(--blue)}
+.entry.m-person{border-left-color:var(--purple)}
+.entry.m-novel{border-left-color:var(--accent)}
+.entry-date{font-size:11px;color:var(--text2);margin-bottom:4px}
+.entry-meta{font-size:12px;color:var(--accent2);margin-bottom:4px;font-weight:500}
+.entry-body{white-space:pre-wrap;word-break:break-all}
+.entry-amount{font-weight:600;font-size:15px}
+.entry-amount.income{color:var(--green)}
+.entry-amount.expense{color:var(--red)}
+
+/* Group headers */
+.group-header{font-size:13px;font-weight:600;color:var(--accent);padding:8px 0 4px;
+  margin-top:8px;border-bottom:1px solid var(--border)}
+.group-header:first-child{margin-top:0}
+.sub-header{font-size:12px;font-weight:500;color:var(--purple);padding:4px 0 2px;margin-top:6px}
+
+/* Summary bar */
+.summary{background:var(--surface2);border-radius:var(--radius);padding:12px;
+  margin-top:12px;text-align:center;font-size:15px;font-weight:600}
+.summary .plus{color:var(--green)}
+.summary .minus{color:var(--red)}
+.summary .total{font-size:18px;margin-top:6px}
+
+/* Person display */
+.person-notes{padding-left:12px;font-size:13px;color:var(--text)}
+.person-note-date{font-size:11px;color:var(--text2)}
+
+/* Input Area */
+#inputArea{border-top:1px solid var(--border);flex-shrink:0;background:var(--surface)}
+#modeTabs{display:flex;gap:0}
+.mtab{flex:1;padding:8px 4px;font-size:11px;font-weight:600;text-align:center;
+  color:var(--text2);border-top:2px solid transparent;transition:all 0.2s}
+.mtab.active{border-top-color:var(--green)}
+.mtab[data-mode="kakeibo"].active{color:var(--green);border-top-color:var(--green)}
+.mtab[data-mode="memo"].active{color:var(--blue);border-top-color:var(--blue)}
+.mtab[data-mode="person"].active{color:var(--purple);border-top-color:var(--purple)}
+.mtab[data-mode="novel"].active{color:var(--accent);border-top-color:var(--accent)}
+.mtab:active{background:var(--surface2)}
+
+#inputForm{padding:10px 14px 14px}
+.form-row{display:flex;gap:8px;margin-bottom:8px}
+.form-row>*{flex:1}
+.form-row .narrow{flex:0 0 100px}
+.form-row .wide{flex:2}
+#submitBtn{width:100%;padding:10px;border-radius:var(--radius);font-weight:600;
+  font-size:14px;transition:all 0.2s}
+#submitBtn:active{transform:scale(0.98)}
+.mode-kakeibo #submitBtn{background:var(--green);color:#fff}
+.mode-memo #submitBtn{background:var(--blue);color:#fff}
+.mode-person #submitBtn{background:var(--purple);color:#fff}
+.mode-novel #submitBtn{background:var(--accent);color:#000}
+
+/* Delete */
+.del-btn{float:right;font-size:11px;color:var(--text2);padding:2px 6px;
+  border-radius:3px;background:var(--surface2)}
+.del-btn:active{background:var(--red);color:#fff}
+
+/* Empty state */
+.empty{text-align:center;color:var(--text2);padding:40px 20px;font-size:13px}
+
+/* Auth overlay */
+#authOverlay{position:fixed;inset:0;background:var(--bg);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;z-index:100}
+#authOverlay h2{color:var(--accent);margin-bottom:20px;font-size:18px}
+#authOverlay button{padding:12px 32px;background:var(--accent);color:#000;
+  border-radius:var(--radius);font-weight:600;font-size:15px}
+#authOverlay button:active{opacity:0.8}
+#authOverlay.hidden{display:none}
+
+/* Status */
+#status{position:fixed;top:10px;left:50%;transform:translateX(-50%);
+  background:var(--surface3);color:var(--accent);padding:4px 14px;border-radius:20px;
+  font-size:11px;opacity:0;transition:opacity 0.3s;z-index:50;pointer-events:none}
+#status.show{opacity:1}
+
+/* Novel content */
+.novel-content{white-space:pre-wrap;line-height:1.8;padding:8px 0;font-size:13px}
+</style>
+</head>
+<body>
+
+<div id="authOverlay">
+  <h2>ものぐさ手帳 v2</h2>
+  <button onclick="signIn()">Googleでログイン</button>
+</div>
+
+<div id="status">保存中...</div>
+
+<div id="app">
+  <header>
+    <h1>ものぐさ手帳</h1>
+    <select id="yearSelect" onchange="switchYear(this.value)"></select>
+    <button id="authBtn" onclick="signOut()">ログアウト</button>
+  </header>
+
+  <div id="viewTabs">
+    <button class="vtab active" data-view="all" onclick="switchView('all')">全部</button>
+    <button class="vtab" data-view="kakeibo" onclick="switchView('kakeibo')">家計簿</button>
+    <button class="vtab" data-view="memo" onclick="switchView('memo')">メモ</button>
+    <button class="vtab" data-view="person" onclick="switchView('person')">人物</button>
+    <button class="vtab" data-view="novel" onclick="switchView('novel')">小説</button>
+  </div>
+
+  <div id="content"></div>
+
+  <div id="inputArea" class="mode-kakeibo">
+    <div id="modeTabs">
+      <button class="mtab active" data-mode="kakeibo" onclick="switchMode('kakeibo')">家計簿</button>
+      <button class="mtab" data-mode="memo" onclick="switchMode('memo')">メモ</button>
+      <button class="mtab" data-mode="person" onclick="switchMode('person')">人物</button>
+      <button class="mtab" data-mode="novel" onclick="switchMode('novel')">小説</button>
+    </div>
+    <div id="inputForm"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================================
+// ★★★ ここにFirebase設定を入れる ★★★
+// ============================================================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "YOUR_APP_ID"
+};
+// ============================================================
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+
+let uid = null;
+let currentYear = new Date().getFullYear().toString();
+let currentMode = 'kakeibo';
+let currentView = 'all';
+let entries = [];
+let unsub = null;
+let saveTimer = null;
+let isReadOnly = false;
+
+// ---- Auth ----
+auth.onAuthStateChanged(user => {
+  if (user) {
+    uid = user.uid;
+    document.getElementById('authOverlay').classList.add('hidden');
+    initApp();
+  } else {
+    document.getElementById('authOverlay').classList.remove('hidden');
+  }
+});
+
+function signIn() {
+  auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+}
+function signOut() {
+  auth.signOut();
+  location.reload();
+}
+
+// ---- Init ----
+function initApp() {
+  setupYears();
+  switchMode(currentMode);
+  loadEntries();
+}
+
+function setupYears() {
+  const sel = document.getElementById('yearSelect');
+  const now = new Date().getFullYear();
+  sel.innerHTML = '';
+  for (let y = now; y >= now - 5; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '年';
+    if (y.toString() === currentYear) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+function switchYear(y) {
+  currentYear = y;
+  isReadOnly = y !== new Date().getFullYear().toString();
+  document.getElementById('inputArea').style.display = isReadOnly ? 'none' : '';
+  loadEntries();
+}
+
+// ---- Firestore ----
+function getCol() {
+  return db.collection('users').doc(uid).collection(currentYear);
+}
+
+function loadEntries() {
+  if (unsub) unsub();
+  unsub = getCol().orderBy('created_at','desc').onSnapshot(snap => {
+    entries = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderContent();
+  });
+}
+
+function addEntry(data) {
+  data.created_at = firebase.firestore.FieldValue.serverTimestamp();
+  data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
+  getCol().add(data).then(() => showStatus('保存しました'));
+}
+
+function updateEntry(id, data) {
+  data.updated_at = firebase.firestore.FieldValue.serverTimestamp();
+  getCol().doc(id).update(data).then(() => showStatus('更新しました'));
+}
+
+function deleteEntry(id) {
+  if (!confirm('削除しますか？')) return;
+  getCol().doc(id).delete().then(() => showStatus('削除しました'));
+}
+
+// ---- Debounce for novel ----
+function debounceSave(id, field, value) {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    updateEntry(id, {[field]: value});
+  }, 3000);
+}
+
+// ---- Status ----
+function showStatus(msg) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ---- Mode Switch ----
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mtab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  const ia = document.getElementById('inputArea');
+  ia.className = 'mode-' + mode;
+  renderInputForm();
+}
+
+function renderInputForm() {
+  const form = document.getElementById('inputForm');
+  const today = new Date().toISOString().slice(0,10);
+
+  switch(currentMode) {
+    case 'kakeibo':
+      form.innerHTML = `
+        <div class="form-row">
+          <select id="inType" class="narrow">
+            <option value="expense">支出</option>
+            <option value="income">収入</option>
+          </select>
+          <input type="number" id="inAmount" placeholder="金額" inputmode="numeric">
+        </div>
+        <div class="form-row">
+          <input type="text" id="inCategory" placeholder="カテゴリ（食費、交通費等）">
+          <input type="date" id="inDate" value="${today}" class="narrow">
+        </div>
+        <div class="form-row">
+          <input type="text" id="inNote" placeholder="メモ（任意）">
+        </div>
+        <button id="submitBtn" onclick="submitKakeibo()">記録</button>`;
+      break;
+
+    case 'memo':
+      form.innerHTML = `
+        <div class="form-row">
+          <input type="date" id="inDate" value="${today}">
+        </div>
+        <textarea id="inMemo" placeholder="メモを書く" rows="3"></textarea>
+        <div style="height:8px"></div>
+        <button id="submitBtn" onclick="submitMemo()">メモ</button>`;
+      break;
+
+    case 'person':
+      form.innerHTML = `
+        <div class="form-row">
+          <input type="text" id="inLocation" placeholder="地名（東神奈川、横浜等）">
+          <input type="text" id="inPerson" placeholder="人物名">
+        </div>
+        <textarea id="inPersonNote" placeholder="メモ（複数行OK）" rows="2"></textarea>
+        <div style="height:8px"></div>
+        <button id="submitBtn" onclick="submitPerson()">記録</button>`;
+      break;
+
+    case 'novel':
+      form.innerHTML = `
+        <div class="form-row">
+          <input type="text" id="inTitle" placeholder="タイトル">
+          <input type="text" id="inEpisode" placeholder="話数" class="narrow">
+        </div>
+        <textarea id="inNovelText" placeholder="本文" rows="4"></textarea>
+        <div style="height:8px"></div>
+        <button id="submitBtn" onclick="submitNovel()">保存</button>`;
+      break;
+  }
+}
+
+// ---- Submit ----
+function submitKakeibo() {
+  const amount = parseInt(document.getElementById('inAmount').value);
+  if (!amount) return;
+  const type = document.getElementById('inType').value;
+  addEntry({
+    mode: 'kakeibo',
+    type,
+    amount: type === 'expense' ? -Math.abs(amount) : Math.abs(amount),
+    category: document.getElementById('inCategory').value || '未分類',
+    date: document.getElementById('inDate').value,
+    note: document.getElementById('inNote').value
+  });
+  document.getElementById('inAmount').value = '';
+  document.getElementById('inNote').value = '';
+  document.getElementById('inCategory').value = '';
+}
+
+function submitMemo() {
+  const text = document.getElementById('inMemo').value.trim();
+  if (!text) return;
+  addEntry({
+    mode: 'memo',
+    content: text,
+    date: document.getElementById('inDate').value
+  });
+  document.getElementById('inMemo').value = '';
+}
+
+function submitPerson() {
+  const loc = document.getElementById('inLocation').value.trim();
+  const person = document.getElementById('inPerson').value.trim();
+  const note = document.getElementById('inPersonNote').value.trim();
+  if (!loc || !person || !note) return;
+  addEntry({
+    mode: 'person',
+    location: loc,
+    person,
+    note,
+    date: new Date().toISOString().slice(0,10)
+  });
+  document.getElementById('inPersonNote').value = '';
+}
+
+function submitNovel() {
+  const title = document.getElementById('inTitle').value.trim();
+  const episode = document.getElementById('inEpisode').value.trim();
+  const content = document.getElementById('inNovelText').value.trim();
+  if (!title || !episode) return;
+  addEntry({
+    mode: 'novel',
+    title,
+    episode,
+    content
+  });
+  document.getElementById('inNovelText').value = '';
+}
+
+// ---- View Switch ----
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+  renderContent();
+}
+
+// ---- Render ----
+function renderContent() {
+  const el = document.getElementById('content');
+  let filtered = currentView === 'all' ? entries : entries.filter(e => e.mode === currentView);
+
+  if (filtered.length === 0) {
+    el.innerHTML = '<div class="empty">データなし</div>';
+    return;
+  }
+
+  switch(currentView) {
+    case 'kakeibo': renderKakeibo(el, filtered); break;
+    case 'memo': renderMemo(el, filtered); break;
+    case 'person': renderPerson(el, filtered); break;
+    case 'novel': renderNovel(el, filtered); break;
+    default: renderAll(el, filtered); break;
+  }
+}
+
+function renderAll(el, items) {
+  // Chronological mixed view, newest first
+  el.innerHTML = items.map(e => {
+    const cls = 'm-' + e.mode;
+    const label = {kakeibo:'家計簿',memo:'メモ',person:'人物',novel:'小説'}[e.mode] || '';
+    let body = '';
+    switch(e.mode) {
+      case 'kakeibo':
+        body = `<span class="entry-amount ${e.amount>=0?'income':'expense'}">${e.amount>=0?'+':''}${e.amount.toLocaleString()}円</span> ${e.category}${e.note?' - '+e.note:''}`;
+        break;
+      case 'memo':
+        body = esc(e.content);
+        break;
+      case 'person':
+        body = `【${esc(e.location)}】『${esc(e.person)}』\n${esc(e.note)}`;
+        break;
+      case 'novel':
+        body = `【${esc(e.title)}】『${esc(e.episode)}』`;
+        break;
+    }
+    return `<div class="entry ${cls}">
+      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
+      <div class="entry-date">${e.date||''} <span style="color:var(--text2)">${label}</span></div>
+      <div class="entry-body">${body}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderKakeibo(el, items) {
+  // Sort by date desc
+  items.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  let total = 0;
+  let income = 0;
+  let expense = 0;
+  items.forEach(e => {
+    total += e.amount;
+    if (e.amount > 0) income += e.amount; else expense += e.amount;
+  });
+
+  let html = items.map(e => `
+    <div class="entry m-kakeibo">
+      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
+      <div class="entry-date">${e.date||''}</div>
+      <div class="entry-body">
+        <span class="entry-amount ${e.amount>=0?'income':'expense'}">${e.amount>=0?'+':''}${e.amount.toLocaleString()}円</span>
+        　${esc(e.category)}${e.note?' - '+esc(e.note):''}
+      </div>
+    </div>`).join('');
+
+  html += `<div class="summary">
+    <span class="plus">+${income.toLocaleString()}円</span>　
+    <span class="minus">${expense.toLocaleString()}円</span>
+    <div class="total" style="color:${total>=0?'var(--green)':'var(--red)'}">
+      合計：${total>=0?'+':''}${total.toLocaleString()}円
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function renderMemo(el, items) {
+  items.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  el.innerHTML = items.map(e => `
+    <div class="entry m-memo">
+      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
+      <div class="entry-date">${e.date||''}</div>
+      <div class="entry-body">${esc(e.content)}</div>
+    </div>`).join('');
+}
+
+function renderPerson(el, items) {
+  // Group by location, then person
+  const groups = {};
+  items.forEach(e => {
+    const loc = e.location || '未分類';
+    if (!groups[loc]) groups[loc] = {};
+    const p = e.person || '不明';
+    if (!groups[loc][p]) groups[loc][p] = [];
+    groups[loc][p].push(e);
+  });
+
+  let html = '';
+  for (const loc of Object.keys(groups).sort()) {
+    html += `<div class="group-header">【${esc(loc)}】</div>`;
+    for (const person of Object.keys(groups[loc]).sort()) {
+      html += `<div class="sub-header">『${esc(person)}』</div>`;
+      // Sort notes by date
+      const notes = groups[loc][person].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+      html += '<div class="person-notes">';
+      notes.forEach(e => {
+        html += `<div style="margin-bottom:4px">
+          ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
+          ${e.date?`<span class="person-note-date">［${e.date}］</span> `:''}${esc(e.note)}
+        </div>`;
+      });
+      html += '</div>';
+    }
+  }
+  el.innerHTML = html || '<div class="empty">データなし</div>';
+}
+
+function renderNovel(el, items) {
+  // Group by title, then episode
+  const groups = {};
+  items.forEach(e => {
+    const t = e.title || '無題';
+    if (!groups[t]) groups[t] = {};
+    const ep = e.episode || '?';
+    if (!groups[t][ep]) groups[t][ep] = e;
+    else {
+      // If duplicate, keep newest
+      const existing = groups[t][ep];
+      const eTime = e.created_at?.toMillis?.() || 0;
+      const exTime = existing.created_at?.toMillis?.() || 0;
+      if (eTime > exTime) groups[t][ep] = e;
+    }
+  });
+
+  let html = '';
+  for (const title of Object.keys(groups).sort()) {
+    html += `<div class="group-header">【${esc(title)}】</div>`;
+    const episodes = Object.keys(groups[title]).sort((a,b) => {
+      const na = parseInt(a), nb = parseInt(b);
+      if (!isNaN(na) && !isNaN(nb)) return na - nb;
+      return a.localeCompare(b);
+    });
+    for (const ep of episodes) {
+      const e = groups[title][ep];
+      html += `<div class="entry m-novel">
+        ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
+        <div class="entry-meta">『${esc(ep)}』</div>
+        <div class="novel-content">${esc(e.content||'')}</div>
+      </div>`;
+    }
+  }
+  el.innerHTML = html || '<div class="empty">データなし</div>';
+}
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ---- Page unload save ----
+window.addEventListener('beforeunload', () => {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    // Force sync save - best effort
+  }
+});
+
+// ---- SW Registration ----
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>

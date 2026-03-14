@@ -65,12 +65,10 @@ textarea{resize:vertical}
 .nb-tbtn{flex:1;padding:10px 4px;font-size:12px;font-weight:600;text-align:center;color:var(--text2);transition:all .15s}
 .nb-tbtn:active{background:var(--bg)}
 .nb-parsed{flex:1;overflow-y:auto;padding:10px 12px}
-.nb-filter-bar{display:flex;gap:6px;padding:8px 12px;overflow-x:auto;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0}
-.nb-filter-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--bg);border:1px solid var(--border);color:var(--text2);transition:all .15s;flex-shrink:0}
-.nb-filter-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.nb-filter-chip:active{opacity:.7}
 .nb-card{background:var(--bg2);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--accent)}
-.nb-card-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.nb-card-title{font-size:13px;font-weight:700;color:var(--accent);margin-bottom:4px;cursor:pointer;padding:2px 4px;border-radius:4px}
+.nb-card-title:active{opacity:.6}
+.nb-filter-hint{text-align:center;font-size:11px;color:var(--text2);padding:6px;background:var(--bg2);border-bottom:1px solid var(--border)}
 .nb-card-sub{font-size:12px;font-weight:600;color:var(--purple);margin:6px 0 2px;padding-left:4px}
 .nb-card-body{white-space:pre-wrap;word-break:break-all;font-size:13px;line-height:1.6;padding-left:4px}
 .nb-card-date{font-size:11px;color:var(--text2)}
@@ -121,7 +119,6 @@ textarea{resize:vertical}
 </div>
 <!-- 一覧 -->
 <div id="nb-list-wrap" style="display:none;flex:1;display:none;flex-direction:column;overflow:hidden">
-  <div class="nb-filter-bar" id="nb-filters"></div>
   <div class="nb-parsed" id="nb-parsed"></div>
 </div>
 <!-- タグボタン -->
@@ -314,30 +311,22 @@ function findOrCreateCat(cats,name){
 
 function nbRenderList(){
   const cats=nbParse();
-  const filtersEl=document.getElementById('nb-filters');
   const parsedEl=document.getElementById('nb-parsed');
 
-  if(!cats.length){filtersEl.innerHTML='';parsedEl.innerHTML='<div class="nb-empty">データなし</div>';return}
+  if(!cats.length){parsedEl.innerHTML='<div class="nb-empty">データなし</div>';return}
 
-  // フィルタチップ
-  let fh='<button class="nb-filter-chip'+(nbFilter===null?' active':'')+'" onclick="nbSetFilter(null)">すべて</button>';
-  cats.forEach(c=>{
-    fh+=`<button class="nb-filter-chip${nbFilter===c.name?' active':''}" onclick="nbSetFilter('${ea(c.name)}')">${es(c.name)}</button>`;
-  });
-  filtersEl.innerHTML=fh;
-
-  // カード表示
   const filtered=nbFilter?cats.filter(c=>c.name===nbFilter):cats;
-  if(!filtered.length){parsedEl.innerHTML='<div class="nb-empty">該当なし</div>';return}
 
   let html='';
-  for(const cat of filtered){
-    html+=`<div class="nb-card"><div class="nb-card-title">【${es(cat.name)}】</div>`;
-    // メインの直下行
+  if(nbFilter){
+    html+=`<div class="nb-filter-hint">「${es(nbFilter)}」でフィルタ中 — タップで解除</div>`;
+  }
+  const show=filtered.length?filtered:cats;
+  for(const cat of show){
+    html+=`<div class="nb-card"><div class="nb-card-title" onclick="nbSetFilter('${ea(cat.name)}')">【${es(cat.name)}】</div>`;
     if(cat.lines.length){
       html+=`<div class="nb-card-body">${cat.lines.map(l=>es(l)).join('\n')}</div>`;
     }
-    // サブカテゴリ
     for(const sub of cat.subs){
       html+=`<div class="nb-card-sub">『${es(sub.name)}』</div>`;
       if(sub.lines.length){

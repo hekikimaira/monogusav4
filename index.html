@@ -73,6 +73,15 @@ textarea{resize:vertical}
 .nb-card-body{white-space:pre-wrap;word-break:break-all;font-size:13px;line-height:1.6;padding-left:4px}
 .nb-card-date{font-size:11px;color:var(--text2)}
 .nb-empty{text-align:center;color:var(--text2);padding:40px 20px;font-size:13px}
+.kb-line{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:13px}
+.kb-line:last-child{border-bottom:none}
+.kb-amount{font-weight:700;font-size:14px;min-width:80px;text-align:right}
+.kb-amount.plus{color:var(--success)}
+.kb-amount.minus{color:var(--danger)}
+.kb-comment{color:var(--text2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.kb-summary{margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--radius);text-align:center}
+.kb-summary-row{display:flex;justify-content:center;gap:16px;font-size:13px;margin-bottom:4px}
+.kb-summary-total{font-size:18px;font-weight:700;margin-top:4px}
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:flex-end;justify-content:center}
 .modal-overlay.open{display:flex}
@@ -115,7 +124,7 @@ textarea{resize:vertical}
 </div>
 <!-- 編集 -->
 <div class="nb-editor-wrap" id="nb-edit-wrap">
-  <textarea class="nb-editor" id="nb-editor" placeholder="なんでも書ける手帳です&#10;&#10;【カテゴリ名】で分類&#10;『サブ名』でさらに分類&#10;［日付］で日付挿入&#10;&#10;一覧タブでカテゴリ別に表示&#10;タップでフィルタ&#10;&#10;例:&#10;【買い物リスト】&#10;牛乳、卵、パン&#10;【読書メモ】『1冊目』&#10;面白かった"></textarea>
+  <textarea class="nb-editor" id="nb-editor" placeholder="なんでも書ける手帳です&#10;&#10;【カテゴリ名】で分類&#10;『サブ名』でさらに分類&#10;［日付］で日付挿入&#10;&#10;一覧タブでカテゴリ別に表示&#10;カテゴリ名タップでフィルタ&#10;&#10;例:&#10;【買い物リスト】&#10;牛乳、卵、パン&#10;【読書メモ】『1冊目』&#10;面白かった&#10;&#10;【家計簿】と書くと自動で家計簿に&#10;（200000 給料　←収入&#10;）1500 ランチ　←支出"></textarea>
 </div>
 <!-- 一覧 -->
 <div id="nb-list-wrap" style="display:none;flex:1;display:none;flex-direction:column;overflow:hidden">
@@ -126,6 +135,8 @@ textarea{resize:vertical}
   <button class="nb-tbtn" onclick="nbInsertWrap('【','】')">【】</button>
   <button class="nb-tbtn" onclick="nbInsertWrap('『','』')">『』</button>
   <button class="nb-tbtn" onclick="nbInsertDate()">［日付］</button>
+  <button class="nb-tbtn" style="color:var(--success)" onclick="nbInsertText('（')">（収</button>
+  <button class="nb-tbtn" style="color:var(--danger)" onclick="nbInsertText('）')">）支</button>
 </div>
 </div>
 
@@ -258,6 +269,13 @@ function nbInsertDate(){
   ed.focus();nbOnInput();
   if(nbV!=='edit')nbView('edit');
 }
+function nbInsertText(txt){
+  const ed=document.getElementById('nb-editor'),pos=ed.selectionStart;
+  ed.value=ed.value.slice(0,pos)+txt+ed.value.slice(pos);
+  ed.selectionStart=ed.selectionEnd=pos+txt.length;
+  ed.focus();nbOnInput();
+  if(nbV!=='edit')nbView('edit');
+}
 
 // パーサー: 【】=メイン分類, 『』=サブ分類
 function nbParse(){
@@ -323,19 +341,80 @@ function nbRenderList(){
   }
   const show=filtered.length?filtered:cats;
   for(const cat of show){
+    const isKakeibo=cat.name==='家計簿';
     html+=`<div class="nb-card"><div class="nb-card-title" onclick="nbSetFilter('${ea(cat.name)}')">【${es(cat.name)}】</div>`;
-    if(cat.lines.length){
-      html+=`<div class="nb-card-body">${cat.lines.map(l=>es(l)).join('\n')}</div>`;
+    if(isKakeibo){
+      html+=renderKakeibo(cat.lines);
+    }else{
+      if(cat.lines.length){
+        html+=`<div class="nb-card-body">${cat.lines.map(l=>es(l)).join('\n')}</div>`;
+      }
     }
     for(const sub of cat.subs){
       html+=`<div class="nb-card-sub">『${es(sub.name)}』</div>`;
-      if(sub.lines.length){
+      if(isKakeibo){
+        html+=renderKakeibo(sub.lines);
+      }else if(sub.lines.length){
         html+=`<div class="nb-card-body">${sub.lines.map(l=>es(l)).join('\n')}</div>`;
       }
     }
     html+=`</div>`;
   }
   parsedEl.innerHTML=html;
+}
+
+// 家計簿パーサー: （or( = 収入, ）or) = 支出, 数字の後に空白orコメント
+function parseKakeiboLine(line){
+  const first=line[0];
+  let sign=0;
+  let rest=line;
+  if(first==='（'||first==='('){sign=1;rest=line.slice(1)}
+  else if(first==='）'||first===')'){sign=-1;rest=line.slice(1)}
+  else return null;
+  // 数字部分（半角全角対応）
+  let numStr='';
+  let i=0;
+  for(;i<rest.length;i++){
+    const c=rest[i];
+    const code=c.charCodeAt(0);
+    // 半角数字
+    if(code>=48&&code<=57){numStr+=c;continue}
+    // 全角数字 ０-９
+    if(code>=0xFF10&&code<=0xFF19){numStr+=String.fromCharCode(code-0xFF10+48);continue}
+    // カンマ・コンマは無視
+    if(c===','||c==='，')continue;
+    break;
+  }
+  if(!numStr)return null;
+  const amount=parseInt(numStr)*sign;
+  // 残りはコメント（先頭の空白除去）
+  let comment=rest.slice(i).replace(/^[\s　]+/,'');
+  return{amount,comment};
+}
+
+function renderKakeibo(lines){
+  if(!lines.length)return '';
+  let html='';
+  let income=0,expense=0;
+  const items=[];
+  for(const line of lines){
+    const parsed=parseKakeiboLine(line);
+    if(parsed){
+      items.push(parsed);
+      if(parsed.amount>0)income+=parsed.amount;else expense+=Math.abs(parsed.amount);
+    }else{
+      // 普通の行はそのまま表示
+      html+=`<div style="font-size:13px;padding:2px 0;color:var(--text2)">${es(line)}</div>`;
+    }
+  }
+  for(const it of items){
+    const cls=it.amount>=0?'plus':'minus';
+    const prefix=it.amount>=0?'+':'';
+    html+=`<div class="kb-line"><span class="kb-amount ${cls}">${prefix}${it.amount.toLocaleString()}円</span><span class="kb-comment">${es(it.comment)}</span></div>`;
+  }
+  const total=income-expense;
+  html+=`<div class="kb-summary"><div class="kb-summary-row"><span style="color:var(--success)">収入 +${income.toLocaleString()}円</span><span style="color:var(--danger)">支出 -${expense.toLocaleString()}円</span></div><div class="kb-summary-total" style="color:${total>=0?'var(--success)':'var(--danger)'}">合計 ${total>=0?'+':''}${total.toLocaleString()}円</div></div>`;
+  return html;
 }
 
 function nbSetFilter(name){

@@ -21,38 +21,67 @@ html,body{height:100%;background:var(--bg);color:var(--text);
   -webkit-tap-highlight-color:transparent}
 button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;
   background:none;color:var(--text);-webkit-appearance:none}
-input,textarea,select{font-family:inherit;font-size:inherit;color:var(--text);
-  background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);
-  padding:8px 10px;outline:none;width:100%}
-input:focus,textarea:focus,select:focus{border-color:var(--accent)}
-textarea{resize:vertical;min-height:80px}
+textarea{font-family:'Helvetica Neue',monospace;font-size:14px;color:var(--text);
+  background:transparent;border:none;outline:none;width:100%;resize:none;
+  line-height:1.7;padding:0}
 
+/* Layout */
 #app{display:flex;flex-direction:column;height:100dvh;max-width:600px;margin:0 auto}
+
+/* Header */
 header{padding:10px 14px;display:flex;align-items:center;gap:8px;
   border-bottom:1px solid var(--border);flex-shrink:0}
 header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent);flex-shrink:0}
-.header-spacer{flex:1}
-#yearSelect{width:80px;padding:4px 6px;font-size:13px;text-align:center;background:var(--surface);flex-shrink:0}
+.hspace{flex:1}
+#yearSelect{width:80px;padding:4px 6px;font-size:13px;text-align:center;
+  background:var(--surface);color:var(--text);border:1px solid var(--border);
+  border-radius:var(--radius);outline:none;flex-shrink:0}
 #syncBtn{font-size:11px;padding:4px 10px;border-radius:var(--radius);
   background:var(--surface2);border:1px solid var(--border);flex-shrink:0;white-space:nowrap}
 #syncBtn:active{background:var(--surface3)}
 #syncBtn.synced{border-color:var(--green);color:var(--green)}
 
+/* View tabs (top) - display mode */
 #viewTabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;overflow-x:auto}
-.vtab{flex:1;padding:10px 6px;font-size:12px;font-weight:500;text-align:center;
-  color:var(--text2);border-bottom:2px solid transparent;transition:all 0.2s;min-width:0;white-space:nowrap}
+.vtab{flex:1;padding:9px 4px;font-size:11px;font-weight:500;text-align:center;
+  color:var(--text2);border-bottom:2px solid transparent;transition:all 0.15s;
+  min-width:0;white-space:nowrap}
 .vtab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.vtab[data-view="edit"].active{color:var(--text);border-bottom-color:var(--text)}
+.vtab[data-view="kakeibo"].active{color:var(--green);border-bottom-color:var(--green)}
+.vtab[data-view="memo"].active{color:var(--blue);border-bottom-color:var(--blue)}
+.vtab[data-view="person"].active{color:var(--purple);border-bottom-color:var(--purple)}
+.vtab[data-view="novel"].active{color:var(--accent);border-bottom-color:var(--accent)}
 .vtab:active{background:var(--surface)}
 
-#content{flex:1;overflow-y:auto;padding:10px 14px;-webkit-overflow-scrolling:touch}
+/* Main content area */
+#content{flex:1;overflow-y:auto;padding:12px 14px;-webkit-overflow-scrolling:touch}
+
+/* Editor */
+#editor{width:100%;min-height:100%;font-size:14px;line-height:1.7;color:var(--text);
+  background:transparent;border:none;outline:none;resize:none;
+  font-family:'Menlo','Courier New',monospace;white-space:pre-wrap;word-break:break-all}
+
+/* Tag insert buttons (bottom) */
+#tagBar{display:flex;gap:0;border-top:1px solid var(--border);flex-shrink:0;
+  background:var(--surface);overflow-x:auto}
+.tbtn{flex:1;padding:10px 4px;font-size:11px;font-weight:600;text-align:center;
+  color:var(--text2);transition:all 0.15s;white-space:nowrap;position:relative}
+.tbtn:active{background:var(--surface2)}
+.tbtn[data-tag="kakeibo"]{color:var(--green)}
+.tbtn[data-tag="memo"]{color:var(--blue)}
+.tbtn[data-tag="person"]{color:var(--purple)}
+.tbtn[data-tag="novel"]{color:var(--accent)}
+.tbtn[data-tag="date"]{color:var(--text)}
+
+/* Parsed display */
+.parsed-section{margin-bottom:12px}
 .entry{background:var(--surface);border-radius:var(--radius);padding:10px 12px;
-  margin-bottom:8px;border-left:3px solid var(--border)}
+  margin-bottom:6px;border-left:3px solid var(--border)}
 .entry.m-kakeibo{border-left-color:var(--green)}
 .entry.m-memo{border-left-color:var(--blue)}
 .entry.m-person{border-left-color:var(--purple)}
 .entry.m-novel{border-left-color:var(--accent)}
-.entry-date{font-size:11px;color:var(--text2);margin-bottom:4px}
-.entry-meta{font-size:12px;color:var(--accent2);margin-bottom:4px;font-weight:500}
 .entry-body{white-space:pre-wrap;word-break:break-all}
 .entry-amount{font-weight:600;font-size:15px}
 .entry-amount.income{color:var(--green)}
@@ -62,6 +91,8 @@ header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent
   margin-top:8px;border-bottom:1px solid var(--border)}
 .group-header:first-child{margin-top:0}
 .sub-header{font-size:12px;font-weight:500;color:var(--purple);padding:4px 0 2px;margin-top:6px}
+.person-notes{padding-left:12px;font-size:13px;color:var(--text)}
+.person-note-date{font-size:11px;color:var(--text2)}
 
 .summary{background:var(--surface2);border-radius:var(--radius);padding:12px;
   margin-top:12px;text-align:center;font-size:15px;font-weight:600}
@@ -69,35 +100,9 @@ header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent
 .summary .minus{color:var(--red)}
 .summary .total{font-size:18px;margin-top:6px}
 
-.person-notes{padding-left:12px;font-size:13px;color:var(--text)}
-.person-note-date{font-size:11px;color:var(--text2)}
-
-#inputArea{border-top:1px solid var(--border);flex-shrink:0;background:var(--surface)}
-#modeTabs{display:flex;gap:0}
-.mtab{flex:1;padding:8px 4px;font-size:11px;font-weight:600;text-align:center;
-  color:var(--text2);border-top:2px solid transparent;transition:all 0.2s}
-.mtab.active{border-top-color:var(--green)}
-.mtab[data-mode="kakeibo"].active{color:var(--green);border-top-color:var(--green)}
-.mtab[data-mode="memo"].active{color:var(--blue);border-top-color:var(--blue)}
-.mtab[data-mode="person"].active{color:var(--purple);border-top-color:var(--purple)}
-.mtab[data-mode="novel"].active{color:var(--accent);border-top-color:var(--accent)}
-.mtab:active{background:var(--surface2)}
-
-#inputForm{padding:10px 14px 14px}
-.form-row{display:flex;gap:8px;margin-bottom:8px}
-.form-row>*{flex:1}
-.form-row .narrow{flex:0 0 100px}
-#submitBtn{width:100%;padding:10px;border-radius:var(--radius);font-weight:600;
-  font-size:14px;transition:all 0.2s}
-#submitBtn:active{transform:scale(0.98)}
-.mode-kakeibo #submitBtn{background:var(--green);color:#fff}
-.mode-memo #submitBtn{background:var(--blue);color:#fff}
-.mode-person #submitBtn{background:var(--purple);color:#fff}
-.mode-novel #submitBtn{background:var(--accent);color:#000}
-
-.del-btn{float:right;font-size:11px;color:var(--text2);padding:2px 6px;
-  border-radius:3px;background:var(--surface2)}
-.del-btn:active{background:var(--red);color:#fff}
+.novel-title{font-size:13px;font-weight:600;color:var(--accent);padding:6px 0 2px}
+.novel-ep{font-size:12px;color:var(--accent2);font-weight:500;margin-bottom:2px}
+.novel-content{white-space:pre-wrap;line-height:1.8;font-size:13px}
 
 .empty{text-align:center;color:var(--text2);padding:40px 20px;font-size:13px}
 
@@ -106,8 +111,7 @@ header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent
   font-size:11px;opacity:0;transition:opacity 0.3s;z-index:50;pointer-events:none}
 #status.show{opacity:1}
 
-.novel-content{white-space:pre-wrap;line-height:1.8;padding:8px 0;font-size:13px}
-
+/* Sync overlay */
 #syncOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);display:none;
   flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:20px}
 #syncOverlay.show{display:flex}
@@ -119,11 +123,15 @@ header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent
 .sync-btns .secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
 .sync-btns .danger{background:var(--red);color:#fff;font-size:12px;margin-top:8px}
 .sync-btns button:active{opacity:0.8}
+
+/* Line count */
+#lineInfo{position:absolute;bottom:46px;right:14px;font-size:10px;color:var(--text2);
+  pointer-events:none}
 </style>
 </head>
 <body>
 
-<div id="status">保存中...</div>
+<div id="status"></div>
 <div id="syncOverlay">
   <h2>クラウド同期</h2>
   <div id="syncContent"></div>
@@ -132,98 +140,87 @@ header h1{font-size:15px;font-weight:600;letter-spacing:0.5px;color:var(--accent
 <div id="app">
   <header>
     <h1>ものぐさ手帳</h1>
-    <div class="header-spacer"></div>
+    <div class="hspace"></div>
     <select id="yearSelect" onchange="switchYear(this.value)"></select>
     <button id="syncBtn" onclick="openSyncMenu()">ローカル</button>
   </header>
 
+  <!-- 上：表示モード切替 -->
   <div id="viewTabs">
-    <button class="vtab active" data-view="all" onclick="switchView('all')">全部</button>
+    <button class="vtab active" data-view="edit" onclick="switchView('edit')">編集</button>
     <button class="vtab" data-view="kakeibo" onclick="switchView('kakeibo')">家計簿</button>
     <button class="vtab" data-view="memo" onclick="switchView('memo')">メモ</button>
     <button class="vtab" data-view="person" onclick="switchView('person')">人物</button>
     <button class="vtab" data-view="novel" onclick="switchView('novel')">小説</button>
   </div>
 
-  <div id="content"></div>
+  <!-- メインエリア -->
+  <div id="content">
+    <textarea id="editor" placeholder="ここに全部書く。下のボタンでタグ挿入。"></textarea>
+  </div>
 
-  <div id="inputArea" class="mode-kakeibo">
-    <div id="modeTabs">
-      <button class="mtab active" data-mode="kakeibo" onclick="switchMode('kakeibo')">家計簿</button>
-      <button class="mtab" data-mode="memo" onclick="switchMode('memo')">メモ</button>
-      <button class="mtab" data-mode="person" onclick="switchMode('person')">人物</button>
-      <button class="mtab" data-mode="novel" onclick="switchMode('novel')">小説</button>
-    </div>
-    <div id="inputForm"></div>
+  <span id="lineInfo"></span>
+
+  <!-- 下：タグ挿入ボタン -->
+  <div id="tagBar">
+    <button class="tbtn" data-tag="kakeibo" onclick="insertTag('/家計簿')">家計簿</button>
+    <button class="tbtn" data-tag="date" onclick="insertDate()">日付</button>
+    <button class="tbtn" data-tag="memo" onclick="insertTag('/メモ')">メモ</button>
+    <button class="tbtn" data-tag="person" onclick="insertTag('/人物')">人物</button>
+    <button class="tbtn" data-tag="novel" onclick="insertTag('/小説')">小説</button>
   </div>
 </div>
 
 <script>
 // ============================================================
-// IndexedDB（常に使う、ローカルの基盤）
+// IndexedDB
 // ============================================================
 const DB_NAME = 'monogusa-v2';
 const DB_VER = 1;
 let idb = null;
 
 function openIDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VER);
-    req.onupgradeneeded = e => {
+  return new Promise((ok, ng) => {
+    const r = indexedDB.open(DB_NAME, DB_VER);
+    r.onupgradeneeded = e => {
       const d = e.target.result;
-      if (!d.objectStoreNames.contains('entries')) {
-        const store = d.createObjectStore('entries', {keyPath:'id'});
-        store.createIndex('year','year',{unique:false});
-        store.createIndex('mode','mode',{unique:false});
+      if (!d.objectStoreNames.contains('texts')) {
+        d.createObjectStore('texts', {keyPath:'key'});
       }
     };
-    req.onsuccess = e => { idb = e.target.result; resolve(idb); };
-    req.onerror = e => reject(e);
+    r.onsuccess = e => { idb = e.target.result; ok(); };
+    r.onerror = e => ng(e);
   });
 }
 
-function idbAll(year) {
-  return new Promise((resolve, reject) => {
-    const tx = idb.transaction('entries','readonly');
-    const idx = tx.objectStore('entries').index('year');
-    const req = idx.getAll(year);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = e => reject(e);
+function idbGet(key) {
+  return new Promise((ok, ng) => {
+    const tx = idb.transaction('texts','readonly');
+    const r = tx.objectStore('texts').get(key);
+    r.onsuccess = () => ok(r.result?.value || '');
+    r.onerror = e => ng(e);
   });
 }
 
-function idbPut(entry) {
-  return new Promise((resolve, reject) => {
-    const tx = idb.transaction('entries','readwrite');
-    tx.objectStore('entries').put(entry);
-    tx.oncomplete = () => resolve();
-    tx.onerror = e => reject(e);
+function idbSet(key, value) {
+  return new Promise((ok, ng) => {
+    const tx = idb.transaction('texts','readwrite');
+    tx.objectStore('texts').put({key, value});
+    tx.oncomplete = () => ok();
+    tx.onerror = e => ng(e);
   });
-}
-
-function idbDelete(id) {
-  return new Promise((resolve, reject) => {
-    const tx = idb.transaction('entries','readwrite');
-    tx.objectStore('entries').delete(id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = e => reject(e);
-  });
-}
-
-function genId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,8);
 }
 
 // ============================================================
-// Firebase（オプション、ログイン時のみ有効化）
+// Firebase（オプション）
 // ============================================================
 let firebaseReady = false;
 let fb_auth = null;
 let fb_db = null;
 let uid = null;
-let unsub = null;
+let fbUnsub = null;
+let suppressFbCallback = false;
 
-// ★★★ ここにFirebase設定を入れる ★★★
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -242,103 +239,81 @@ function tryInitFirebase() {
     fb_db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
     firebaseReady = true;
     fb_auth.onAuthStateChanged(user => {
-      if (user) {
-        uid = user.uid;
-        updateSyncBtn(true);
-        startFirebaseSync();
-      } else {
-        uid = null;
-        if (unsub) { unsub(); unsub = null; }
-        updateSyncBtn(false);
-      }
+      if (user) { uid = user.uid; updateSyncBtn(true); startFbSync(); }
+      else { uid = null; if (fbUnsub){fbUnsub();fbUnsub=null;} updateSyncBtn(false); }
     });
-  } catch(e) { console.warn('Firebase init failed:', e); }
+  } catch(e) { console.warn('Firebase:', e); }
 }
 
 function fbSignIn() {
   tryInitFirebase();
   if (!fb_auth) { showStatus('Firebase未設定'); return; }
-  fb_auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => {
-    showStatus('ログイン失敗');
-    console.error(e);
-  });
+  fb_auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(() => showStatus('ログイン失敗'));
 }
 
 function fbSignOut() {
   if (fb_auth) fb_auth.signOut();
   uid = null;
-  if (unsub) { unsub(); unsub = null; }
+  if (fbUnsub) { fbUnsub(); fbUnsub = null; }
   updateSyncBtn(false);
   closeSyncMenu();
-  showStatus('ログアウトしました');
+  showStatus('ログアウト');
 }
 
-function getCol() {
-  return fb_db.collection('users').doc(uid).collection(currentYear);
+function fbDocRef() {
+  return fb_db.collection('users').doc(uid).collection('monogusa').doc(currentYear);
 }
 
-function startFirebaseSync() {
+function startFbSync() {
   if (!uid || !fb_db) return;
-  if (unsub) unsub();
+  if (fbUnsub) fbUnsub();
 
-  // Firestoreのリアルタイムリスナー → ローカルに反映
-  unsub = getCol().orderBy('created_at','desc').onSnapshot(async snap => {
-    const fbEntries = snap.docs.map(d => {
-      const data = {id:d.id, ...d.data(), _synced:true, year:currentYear};
-      if (data.created_at?.toMillis) data.created_at = data.created_at.toMillis();
-      if (data.updated_at?.toMillis) data.updated_at = data.updated_at.toMillis();
-      return data;
-    });
-    for (const fe of fbEntries) await idbPut(fe);
-    await loadFromLocal();
+  // リアルタイムリスナー
+  fbUnsub = fbDocRef().onSnapshot(snap => {
+    if (suppressFbCallback) return;
+    const data = snap.data();
+    if (data && data.text !== undefined) {
+      const editor = document.getElementById('editor');
+      const localText = editor.value;
+      // サーバーの方が新しければ反映（コンフリクト時はサーバー優先）
+      if (data.updated_at && data.text !== localText) {
+        const pos = editor.selectionStart;
+        editor.value = data.text;
+        editor.selectionStart = editor.selectionEnd = Math.min(pos, data.text.length);
+        // ローカルにも保存
+        idbSet(currentYear, data.text);
+      }
+    }
   });
 
-  // ローカル未同期 → Firebase
-  pushLocalToFirebase();
+  // ローカルの現在値をpush（初回）
+  pushToFb();
 }
 
-async function pushLocalToFirebase() {
+function pushToFb() {
   if (!uid || !fb_db) return;
-  const local = await idbAll(currentYear);
-  for (const e of local) {
-    if (!e._synced) {
-      const data = {...e};
-      delete data.id; delete data.year; delete data._synced;
-      data.created_at = firebase.firestore.Timestamp.fromMillis(data.created_at || Date.now());
-      data.updated_at = firebase.firestore.Timestamp.fromMillis(data.updated_at || Date.now());
-      try {
-        await getCol().doc(e.id).set(data);
-        e._synced = true;
-        await idbPut(e);
-      } catch(err) { console.warn('Push failed:', err); }
-    }
-  }
-}
-
-async function fbDeleteDoc(id) {
-  if (uid && fb_db) {
-    try { await getCol().doc(id).delete(); } catch(e) { console.warn(e); }
-  }
+  const text = document.getElementById('editor').value;
+  suppressFbCallback = true;
+  fbDocRef().set({
+    text,
+    updated_at: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(() => {
+    setTimeout(() => { suppressFbCallback = false; }, 500);
+  }).catch(() => { suppressFbCallback = false; });
 }
 
 // ============================================================
-// App State
+// App
 // ============================================================
 let currentYear = new Date().getFullYear().toString();
-let currentMode = 'kakeibo';
-let currentView = 'all';
-let entries = [];
+let currentView = 'edit';
 let saveTimer = null;
-let isReadOnly = false;
 
 async function initApp() {
   await openIDB();
   setupYears();
-  switchMode(currentMode);
-  await loadFromLocal();
-  // Firebase SDK遅延読み込み後に初期化試行
+  await loadText();
   setTimeout(() => tryInitFirebase(), 800);
-  // 再試行（SDKがまだ読めてない場合）
   setTimeout(() => tryInitFirebase(), 2500);
 }
 
@@ -355,88 +330,319 @@ function setupYears() {
 }
 
 function switchYear(y) {
+  // 現在のを保存してから切り替え
+  saveNow();
   currentYear = y;
-  isReadOnly = y !== new Date().getFullYear().toString();
-  document.getElementById('inputArea').style.display = isReadOnly ? 'none' : '';
-  loadFromLocal();
-  if (uid && fb_db) {
-    if (unsub) unsub();
-    startFirebaseSync();
-  }
+  loadText();
+  if (uid && fb_db) startFbSync();
 }
 
-async function loadFromLocal() {
-  entries = await idbAll(currentYear);
-  entries.sort((a,b) => (b.created_at||0) - (a.created_at||0));
-  renderContent();
+async function loadText() {
+  const text = await idbGet(currentYear);
+  document.getElementById('editor').value = text;
+  if (currentView !== 'edit') renderView();
 }
 
-// ---- CRUD ----
-async function addEntry(data) {
-  const now = Date.now();
-  const entry = { id:genId(), year:currentYear, created_at:now, updated_at:now, _synced:false, ...data };
-  await idbPut(entry);
-
-  if (uid && fb_db) {
-    scheduleFbSync(entry);
-  }
-  showStatus('保存しました');
-  await loadFromLocal();
-}
-
-function scheduleFbSync(entry) {
+// ---- 保存（デバウンス3秒） ----
+function onInput() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    const data = {...entry};
-    delete data.id; delete data.year; delete data._synced;
-    data.created_at = firebase.firestore.Timestamp.fromMillis(data.created_at || Date.now());
-    data.updated_at = firebase.firestore.Timestamp.fromMillis(data.updated_at || Date.now());
-    try {
-      await getCol().doc(entry.id).set(data);
-      entry._synced = true;
-      await idbPut(entry);
-    } catch(e) { console.warn('Sync failed:', e); }
-  }, 3000);
+  saveTimer = setTimeout(() => saveNow(), 3000);
+  updateLineInfo();
 }
 
-async function deleteEntry(id) {
-  if (!confirm('削除しますか？')) return;
-  await idbDelete(id);
-  await fbDeleteDoc(id);
-  showStatus('削除しました');
-  await loadFromLocal();
+function saveNow() {
+  clearTimeout(saveTimer);
+  const text = document.getElementById('editor').value;
+  idbSet(currentYear, text);
+  if (uid && fb_db) pushToFb();
 }
 
-// ---- Sync UI ----
-function updateSyncBtn(loggedIn) {
-  const btn = document.getElementById('syncBtn');
-  btn.textContent = loggedIn ? '同期中' : 'ローカル';
-  btn.classList.toggle('synced', loggedIn);
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('editor').addEventListener('input', onInput);
+});
+
+window.addEventListener('beforeunload', () => saveNow());
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') saveNow();
+});
+
+// ---- タグ挿入 ----
+function insertTag(tag) {
+  const ed = document.getElementById('editor');
+  const pos = ed.selectionStart;
+  const text = ed.value;
+  // カーソル位置が行頭でなければ改行入れる
+  const before = text.slice(0, pos);
+  const needNL = before.length > 0 && before[before.length - 1] !== '\n';
+  const insert = (needNL ? '\n' : '') + tag + '\n';
+  ed.value = before + insert + text.slice(pos);
+  ed.selectionStart = ed.selectionEnd = pos + insert.length;
+  ed.focus();
+  onInput();
+
+  // 編集モードに切り替え
+  if (currentView !== 'edit') switchView('edit');
 }
 
-function openSyncMenu() {
-  const overlay = document.getElementById('syncOverlay');
-  const content = document.getElementById('syncContent');
-  if (uid) {
-    content.innerHTML = `
-      <p>Googleアカウントと同期中</p>
-      <div class="sync-btns">
-        <button class="secondary" onclick="closeSyncMenu()">閉じる</button>
-        <button class="danger" onclick="fbSignOut()">ログアウト</button>
-      </div>`;
+function insertDate() {
+  const ed = document.getElementById('editor');
+  const pos = ed.selectionStart;
+  const today = '［' + new Date().toISOString().slice(0, 10) + '］';
+  const text = ed.value;
+  ed.value = text.slice(0, pos) + today + text.slice(pos);
+  ed.selectionStart = ed.selectionEnd = pos + today.length;
+  ed.focus();
+  onInput();
+
+  if (currentView !== 'edit') switchView('edit');
+}
+
+function updateLineInfo() {
+  const ed = document.getElementById('editor');
+  const lines = ed.value.split('\n').length;
+  document.getElementById('lineInfo').textContent = lines + '行';
+}
+
+// ---- 表示モード ----
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.vtab').forEach(t =>
+    t.classList.toggle('active', t.dataset.view === view));
+
+  const content = document.getElementById('content');
+  const editor = document.getElementById('editor');
+  const tagBar = document.getElementById('tagBar');
+  const lineInfo = document.getElementById('lineInfo');
+
+  if (view === 'edit') {
+    editor.style.display = '';
+    tagBar.style.display = '';
+    lineInfo.style.display = '';
+    // 既存のparsed表示を消す
+    const parsed = content.querySelector('.parsed-view');
+    if (parsed) parsed.remove();
+    updateLineInfo();
   } else {
-    content.innerHTML = `
-      <p>ローカル保存中<br>Googleログインでクラウド同期できます</p>
-      <div class="sync-btns">
-        <button class="primary" onclick="fbSignIn()">Googleでログイン</button>
-        <button class="secondary" onclick="closeSyncMenu()">ローカルのまま</button>
-      </div>`;
+    editor.style.display = 'none';
+    tagBar.style.display = 'none';
+    lineInfo.style.display = 'none';
+    renderView();
   }
-  overlay.classList.add('show');
 }
 
-function closeSyncMenu() {
-  document.getElementById('syncOverlay').classList.remove('show');
+// ============================================================
+// パーサー
+// ============================================================
+function parseText(text) {
+  const lines = text.split('\n');
+  let currentMode = null;
+  const blocks = { kakeibo: [], memo: [], person: [], novel: [] };
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed === '/家計簿') { currentMode = 'kakeibo'; continue; }
+    if (trimmed === '/メモ') { currentMode = 'memo'; continue; }
+    if (trimmed === '/人物') { currentMode = 'person'; continue; }
+    if (trimmed === '/小説') { currentMode = 'novel'; continue; }
+    if (!currentMode || trimmed === '') continue;
+    blocks[currentMode].push(trimmed);
+  }
+  return blocks;
+}
+
+function renderView() {
+  const text = document.getElementById('editor').value;
+  const blocks = parseText(text);
+  const content = document.getElementById('content');
+
+  // 既存parsed消す
+  let parsed = content.querySelector('.parsed-view');
+  if (!parsed) {
+    parsed = document.createElement('div');
+    parsed.className = 'parsed-view';
+    content.appendChild(parsed);
+  }
+
+  switch(currentView) {
+    case 'kakeibo': renderKakeibo(parsed, blocks.kakeibo); break;
+    case 'memo': renderMemo(parsed, blocks.memo); break;
+    case 'person': renderPerson(parsed, blocks.person); break;
+    case 'novel': renderNovel(parsed, blocks.novel); break;
+  }
+}
+
+// ---- 家計簿表示 ----
+// 行フォーマット: +/-金額 カテゴリ メモ  または ［日付］+/-金額 カテゴリ メモ
+function renderKakeibo(el, lines) {
+  const re = /^(?:［([^\］]*)］\s*)?([+\-]?\d+)\s*(.*)$/;
+  let total = 0, income = 0, expense = 0;
+  const items = [];
+
+  for (const line of lines) {
+    const m = line.match(re);
+    if (!m) continue;
+    const date = m[1] || '';
+    const amount = parseInt(m[2]);
+    const rest = m[3] || '';
+    const parts = rest.split(/\s+/);
+    const category = parts[0] || '';
+    const note = parts.slice(1).join(' ');
+    total += amount;
+    if (amount > 0) income += amount; else expense += amount;
+    items.push({date, amount, category, note});
+  }
+
+  if (!items.length) { el.innerHTML = '<div class="empty">家計簿データなし</div>'; return; }
+
+  let html = items.map(e => `
+    <div class="entry m-kakeibo">
+      ${e.date ? `<div style="font-size:11px;color:var(--text2)">${esc(e.date)}</div>` : ''}
+      <div class="entry-body">
+        <span class="entry-amount ${e.amount>=0?'income':'expense'}">${e.amount>=0?'+':''}${e.amount.toLocaleString()}円</span>
+        　${esc(e.category)}${e.note?' - '+esc(e.note):''}
+      </div>
+    </div>`).join('');
+
+  html += `<div class="summary">
+    <span class="plus">+${income.toLocaleString()}円</span>　<span class="minus">${expense.toLocaleString()}円</span>
+    <div class="total" style="color:${total>=0?'var(--green)':'var(--red)'}">合計：${total>=0?'+':''}${total.toLocaleString()}円</div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+// ---- メモ表示 ----
+// ［日付］で区切り、日付降順
+function renderMemo(el, lines) {
+  const entries = [];
+  let currentDate = '';
+  let buf = [];
+
+  for (const line of lines) {
+    const dm = line.match(/^［([^\］]*)］(.*)$/);
+    if (dm) {
+      if (buf.length) entries.push({date:currentDate, text:buf.join('\n')});
+      currentDate = dm[1];
+      const rest = dm[2].trim();
+      buf = rest ? [rest] : [];
+    } else {
+      buf.push(line);
+    }
+  }
+  if (buf.length) entries.push({date:currentDate, text:buf.join('\n')});
+
+  if (!entries.length) { el.innerHTML = '<div class="empty">メモなし</div>'; return; }
+
+  entries.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  el.innerHTML = entries.map(e => `
+    <div class="entry m-memo">
+      ${e.date ? `<div style="font-size:11px;color:var(--text2)">［${esc(e.date)}］</div>` : ''}
+      <div class="entry-body">${esc(e.text)}</div>
+    </div>`).join('');
+}
+
+// ---- 人物表示 ----
+// 【地名】で大カテゴリ、名前@メモ で蓄積、［日付］があればその順
+function renderPerson(el, lines) {
+  const groups = {}; // {location: {person: [{date,note}]}}
+  let currentLoc = '';
+
+  for (const line of lines) {
+    const locM = line.match(/^【([^】]*)】$/);
+    if (locM) { currentLoc = locM[1]; continue; }
+    if (!currentLoc) continue;
+
+    // ［日付］名前@メモ or 名前@メモ
+    let date = '';
+    let rest = line;
+    const dateM = rest.match(/^［([^\］]*)］\s*(.*)/);
+    if (dateM) { date = dateM[1]; rest = dateM[2]; }
+
+    const atIdx = rest.indexOf('@');
+    if (atIdx < 1) continue;
+    const person = rest.slice(0, atIdx);
+    const note = rest.slice(atIdx + 1);
+
+    if (!groups[currentLoc]) groups[currentLoc] = {};
+    if (!groups[currentLoc][person]) groups[currentLoc][person] = [];
+    groups[currentLoc][person].push({date, note});
+  }
+
+  if (!Object.keys(groups).length) { el.innerHTML = '<div class="empty">人物データなし</div>'; return; }
+
+  let html = '';
+  for (const loc of Object.keys(groups).sort()) {
+    html += `<div class="group-header">【${esc(loc)}】</div>`;
+    for (const person of Object.keys(groups[loc]).sort()) {
+      html += `<div class="sub-header">${esc(person)}</div>`;
+      const notes = groups[loc][person].sort((a,b) => (a.date||'').localeCompare(b.date||''));
+      html += '<div class="person-notes">';
+      notes.forEach(n => {
+        html += `<div style="margin-bottom:3px">${n.date?`<span class="person-note-date">［${esc(n.date)}］</span> `:''}${esc(n.note)}</div>`;
+      });
+      html += '</div>';
+    }
+  }
+  el.innerHTML = html;
+}
+
+// ---- 小説表示 ----
+// 【タイトル】で大カテゴリ、『話数』でサブ、以降が本文
+function renderNovel(el, lines) {
+  const groups = {}; // {title: {episode: text}}
+  let currentTitle = '';
+  let currentEp = '';
+  let buf = [];
+
+  function flush() {
+    if (currentTitle && currentEp) {
+      if (!groups[currentTitle]) groups[currentTitle] = {};
+      groups[currentTitle][currentEp] = buf.join('\n');
+    }
+    buf = [];
+  }
+
+  for (const line of lines) {
+    const titleM = line.match(/^【([^】]*)】$/);
+    if (titleM) { flush(); currentTitle = titleM[1]; currentEp = ''; continue; }
+    const epM = line.match(/^『([^』]*)』$/);
+    if (epM) { flush(); currentEp = epM[1]; continue; }
+
+    // 同一行に両方: 【タイトル】『話数』
+    const bothM = line.match(/^【([^】]*)】『([^』]*)』$/);
+    if (bothM) { flush(); currentTitle = bothM[1]; currentEp = bothM[2]; continue; }
+
+    if (currentTitle && currentEp) buf.push(line);
+  }
+  flush();
+
+  if (!Object.keys(groups).length) { el.innerHTML = '<div class="empty">小説データなし</div>'; return; }
+
+  let html = '';
+  for (const title of Object.keys(groups).sort()) {
+    html += `<div class="group-header">【${esc(title)}】</div>`;
+    const eps = Object.keys(groups[title]).sort((a,b) => {
+      const na=parseInt(a),nb=parseInt(b);
+      if(!isNaN(na)&&!isNaN(nb)) return na-nb;
+      return a.localeCompare(b);
+    });
+    for (const ep of eps) {
+      html += `<div class="entry m-novel">
+        <div class="novel-ep">『${esc(ep)}』</div>
+        <div class="novel-content">${esc(groups[title][ep])}</div>
+      </div>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+// ============================================================
+// Util
+// ============================================================
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 
 function showStatus(msg) {
@@ -446,219 +652,42 @@ function showStatus(msg) {
   setTimeout(() => el.classList.remove('show'), 1500);
 }
 
-// ---- Mode / View ----
-function switchMode(mode) {
-  currentMode = mode;
-  document.querySelectorAll('.mtab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
-  document.getElementById('inputArea').className = 'mode-' + mode;
-  renderInputForm();
+function updateSyncBtn(on) {
+  const btn = document.getElementById('syncBtn');
+  btn.textContent = on ? '同期中' : 'ローカル';
+  btn.classList.toggle('synced', on);
 }
 
-function renderInputForm() {
-  const form = document.getElementById('inputForm');
-  const today = new Date().toISOString().slice(0,10);
-  switch(currentMode) {
-    case 'kakeibo':
-      form.innerHTML = `
-        <div class="form-row">
-          <select id="inType" class="narrow"><option value="expense">支出</option><option value="income">収入</option></select>
-          <input type="number" id="inAmount" placeholder="金額" inputmode="numeric">
-        </div>
-        <div class="form-row">
-          <input type="text" id="inCategory" placeholder="カテゴリ（食費等）">
-          <input type="date" id="inDate" value="${today}" class="narrow">
-        </div>
-        <div class="form-row"><input type="text" id="inNote" placeholder="メモ（任意）"></div>
-        <button id="submitBtn" onclick="submitKakeibo()">記録</button>`; break;
-    case 'memo':
-      form.innerHTML = `
-        <div class="form-row"><input type="date" id="inDate" value="${today}"></div>
-        <textarea id="inMemo" placeholder="メモを書く" rows="3"></textarea>
-        <div style="height:8px"></div>
-        <button id="submitBtn" onclick="submitMemo()">メモ</button>`; break;
-    case 'person':
-      form.innerHTML = `
-        <div class="form-row">
-          <input type="text" id="inLocation" placeholder="地名（東神奈川等）">
-          <input type="text" id="inPerson" placeholder="人物名">
-        </div>
-        <textarea id="inPersonNote" placeholder="メモ（複数行OK）" rows="2"></textarea>
-        <div style="height:8px"></div>
-        <button id="submitBtn" onclick="submitPerson()">記録</button>`; break;
-    case 'novel':
-      form.innerHTML = `
-        <div class="form-row">
-          <input type="text" id="inTitle" placeholder="タイトル">
-          <input type="text" id="inEpisode" placeholder="話数" class="narrow">
-        </div>
-        <textarea id="inNovelText" placeholder="本文" rows="4"></textarea>
-        <div style="height:8px"></div>
-        <button id="submitBtn" onclick="submitNovel()">保存</button>`; break;
-  }
-}
-
-// ---- Submit ----
-function submitKakeibo() {
-  const amount = parseInt(document.getElementById('inAmount').value);
-  if (!amount) return;
-  const type = document.getElementById('inType').value;
-  addEntry({
-    mode:'kakeibo', type,
-    amount: type==='expense' ? -Math.abs(amount) : Math.abs(amount),
-    category: document.getElementById('inCategory').value || '未分類',
-    date: document.getElementById('inDate').value,
-    note: document.getElementById('inNote').value
-  });
-  document.getElementById('inAmount').value = '';
-  document.getElementById('inNote').value = '';
-  document.getElementById('inCategory').value = '';
-}
-
-function submitMemo() {
-  const text = document.getElementById('inMemo').value.trim();
-  if (!text) return;
-  addEntry({mode:'memo', content:text, date:document.getElementById('inDate').value});
-  document.getElementById('inMemo').value = '';
-}
-
-function submitPerson() {
-  const loc = document.getElementById('inLocation').value.trim();
-  const person = document.getElementById('inPerson').value.trim();
-  const note = document.getElementById('inPersonNote').value.trim();
-  if (!loc || !person || !note) return;
-  addEntry({mode:'person', location:loc, person, note, date:new Date().toISOString().slice(0,10)});
-  document.getElementById('inPersonNote').value = '';
-}
-
-function submitNovel() {
-  const title = document.getElementById('inTitle').value.trim();
-  const episode = document.getElementById('inEpisode').value.trim();
-  const content = document.getElementById('inNovelText').value.trim();
-  if (!title || !episode) return;
-  addEntry({mode:'novel', title, episode, content});
-  document.getElementById('inNovelText').value = '';
-}
-
-// ---- View ----
-function switchView(view) {
-  currentView = view;
-  document.querySelectorAll('.vtab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
-  renderContent();
-}
-
-function renderContent() {
-  const el = document.getElementById('content');
-  let filtered = currentView === 'all' ? entries : entries.filter(e => e.mode === currentView);
-  if (!filtered.length) { el.innerHTML = '<div class="empty">データなし</div>'; return; }
-  switch(currentView) {
-    case 'kakeibo': renderKakeibo(el, filtered); break;
-    case 'memo': renderMemo(el, filtered); break;
-    case 'person': renderPerson(el, filtered); break;
-    case 'novel': renderNovel(el, filtered); break;
-    default: renderAll(el, filtered);
-  }
-}
-
-function renderAll(el, items) {
-  el.innerHTML = items.map(e => {
-    const cls='m-'+e.mode;
-    const label={kakeibo:'家計簿',memo:'メモ',person:'人物',novel:'小説'}[e.mode]||'';
-    let body='';
-    switch(e.mode){
-      case 'kakeibo': body=`<span class="entry-amount ${e.amount>=0?'income':'expense'}">${e.amount>=0?'+':''}${e.amount.toLocaleString()}円</span> ${esc(e.category)}${e.note?' - '+esc(e.note):''}`; break;
-      case 'memo': body=esc(e.content); break;
-      case 'person': body=`【${esc(e.location)}】『${esc(e.person)}』\n${esc(e.note)}`; break;
-      case 'novel': body=`【${esc(e.title)}】『${esc(e.episode)}』`; break;
-    }
-    return `<div class="entry ${cls}">
-      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
-      <div class="entry-date">${e.date||''} <span style="color:var(--text2)">${label}</span></div>
-      <div class="entry-body">${body}</div>
-    </div>`;
-  }).join('');
-}
-
-function renderKakeibo(el, items) {
-  items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  let total=0,income=0,expense=0;
-  items.forEach(e=>{total+=e.amount;if(e.amount>0)income+=e.amount;else expense+=e.amount;});
-  let html=items.map(e=>`
-    <div class="entry m-kakeibo">
-      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
-      <div class="entry-date">${e.date||''}</div>
-      <div class="entry-body">
-        <span class="entry-amount ${e.amount>=0?'income':'expense'}">${e.amount>=0?'+':''}${e.amount.toLocaleString()}円</span>
-        　${esc(e.category)}${e.note?' - '+esc(e.note):''}
-      </div>
-    </div>`).join('');
-  html+=`<div class="summary">
-    <span class="plus">+${income.toLocaleString()}円</span>　<span class="minus">${expense.toLocaleString()}円</span>
-    <div class="total" style="color:${total>=0?'var(--green)':'var(--red)'}">合計：${total>=0?'+':''}${total.toLocaleString()}円</div>
-  </div>`;
-  el.innerHTML=html;
-}
-
-function renderMemo(el, items) {
-  items.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  el.innerHTML=items.map(e=>`
-    <div class="entry m-memo">
-      ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
-      <div class="entry-date">${e.date||''}</div>
-      <div class="entry-body">${esc(e.content)}</div>
-    </div>`).join('');
-}
-
-function renderPerson(el, items) {
-  const g={};
-  items.forEach(e=>{const l=e.location||'未分類';if(!g[l])g[l]={};const p=e.person||'不明';if(!g[l][p])g[l][p]=[];g[l][p].push(e);});
-  let html='';
-  for(const loc of Object.keys(g).sort()){
-    html+=`<div class="group-header">【${esc(loc)}】</div>`;
-    for(const person of Object.keys(g[loc]).sort()){
-      html+=`<div class="sub-header">『${esc(person)}』</div>`;
-      const notes=g[loc][person].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-      html+='<div class="person-notes">';
-      notes.forEach(e=>{
-        html+=`<div style="margin-bottom:4px">
-          ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
-          ${e.date?`<span class="person-note-date">［${e.date}］</span> `:''}${esc(e.note)}
-        </div>`;
-      });
-      html+='</div>';
-    }
-  }
-  el.innerHTML=html||'<div class="empty">データなし</div>';
-}
-
-function renderNovel(el, items) {
-  const g={};
-  items.forEach(e=>{const t=e.title||'無題';if(!g[t])g[t]={};const ep=e.episode||'?';
-    if(!g[t][ep])g[t][ep]=e;else if((e.created_at||0)>(g[t][ep].created_at||0))g[t][ep]=e;});
-  let html='';
-  for(const title of Object.keys(g).sort()){
-    html+=`<div class="group-header">【${esc(title)}】</div>`;
-    const eps=Object.keys(g[title]).sort((a,b)=>{const na=parseInt(a),nb=parseInt(b);if(!isNaN(na)&&!isNaN(nb))return na-nb;return a.localeCompare(b);});
-    for(const ep of eps){
-      const e=g[title][ep];
-      html+=`<div class="entry m-novel">
-        ${!isReadOnly?`<button class="del-btn" onclick="deleteEntry('${e.id}')">×</button>`:''}
-        <div class="entry-meta">『${esc(ep)}』</div>
-        <div class="novel-content">${esc(e.content||'')}</div>
+function openSyncMenu() {
+  const ov = document.getElementById('syncOverlay');
+  const c = document.getElementById('syncContent');
+  if (uid) {
+    c.innerHTML = `<p>Googleアカウントと同期中</p>
+      <div class="sync-btns">
+        <button class="secondary" onclick="closeSyncMenu()">閉じる</button>
+        <button class="danger" onclick="fbSignOut()">ログアウト</button>
       </div>`;
-    }
+  } else {
+    c.innerHTML = `<p>ローカル保存中<br>Googleログインで同期できます</p>
+      <div class="sync-btns">
+        <button class="primary" onclick="fbSignIn()">Googleでログイン</button>
+        <button class="secondary" onclick="closeSyncMenu()">ローカルのまま</button>
+      </div>`;
   }
-  el.innerHTML=html||'<div class="empty">データなし</div>';
+  ov.classList.add('show');
+}
+function closeSyncMenu() {
+  document.getElementById('syncOverlay').classList.remove('show');
 }
 
-function esc(s){if(!s)return '';const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+// SW
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-window.addEventListener('beforeunload',()=>{if(saveTimer)clearTimeout(saveTimer);});
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
-
+// Start
 initApp();
 </script>
 
-<!-- Firebase SDK: 遅延読み込み、なくてもローカルで動く -->
+<!-- Firebase: 遅延読み込み、なくても動く -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js" defer></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" defer></script>
